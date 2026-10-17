@@ -63,3 +63,10 @@ class Note(Base):
     author: Mapped[str] = mapped_column(String(80))
     body: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class RateBucket(Base):
+    __tablename__ = "rate_buckets"
+    key: Mapped[str] = mapped_column(String(160), primary_key=True)
+    count: Mapped[int] = mapped_column(Integer, nullable=False)
+    expires: Mapped[int] = mapped_column(Integer, nullable=False, index=True)

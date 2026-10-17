@@ -24,6 +24,17 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
         <p className="eyebrow">WORKSPACE ACCESS</p>
         <h1>Welcome back</h1>
         <p>Sign in to your incident workspace.</p>
+        {import.meta.env.VITE_PUBLIC_DEMO === "1" && (
+          <p className="notice" role="note">
+            Public sandbox · fictional data only. Shared accounts:{" "}
+            <code>demo.analyst</code>
+            {" or "}
+            <code>demo.viewer</code>. Password:{" "}
+            <code>Fictional-Demo-Only!</code>. Changes are visible to everyone.
+            Use no personal or operational data. Shared action quotas apply; no
+            administrator access is provided.
+          </p>
+        )}
         <form
           onSubmit={async (e) => {
             e.preventDefault();

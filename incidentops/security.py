@@ -11,6 +11,7 @@ from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from incidentops.db import get_db
+from incidentops.limits import consume
 from incidentops.models import LoginSession, User, utcnow
 
 hasher = PasswordHasher()
@@ -43,9 +44,12 @@ def current_user(request: Request, db: Session = Depends(get_db)):
     return user
 
 
-def writer(user: User = Depends(current_user)):
+def writer(user: User = Depends(current_user), db: Session = Depends(get_db)):
     if user.role not in {"admin", "analyst"}:
         raise HTTPException(403, "Analyst permission required")
+    if os.getenv("PUBLIC_DEMO") == "1":
+        consume(db, "demo-writes-daily", "all", 200, 86400)
+        consume(db, "demo-writes-user", user.id, 30, 3600)
     return user
 
 

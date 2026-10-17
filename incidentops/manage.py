@@ -14,29 +14,47 @@ from incidentops.security import hasher
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["demo", "admin"])
+    parser.add_argument("command", choices=["demo", "public-demo", "admin"])
     parser.add_argument("--username", default="admin")
     args = parser.parse_args()
     if args.command == "demo" and os.getenv("APP_ENV") == "production":
         raise SystemExit("Demo seeding is forbidden in production")
+    if args.command == "public-demo" and os.getenv("PUBLIC_DEMO") != "1":
+        raise SystemExit("Public demo seeding requires a dedicated PUBLIC_DEMO=1 database")
     password = (
         "Demo-Only-Change-Me!"
         if args.command == "demo"
+        else "Fictional-Demo-Only!"
+        if args.command == "public-demo"
         else getpass.getpass("New password (12+ chars): ")
     )
     if len(password) < 12:
         raise SystemExit("Password must have at least 12 characters")
     with SessionLocal() as db:
-        name = "demo.admin" if args.command == "demo" else args.username
+        name = {"demo": "demo.admin", "public-demo": "demo.analyst"}.get(
+            args.command, args.username
+        )
         if db.scalar(select(User).where(User.username == name)):
-            if args.command == "demo":
+            if args.command in {"demo", "public-demo"}:
                 print("Demo account already exists; nothing changed")
                 return
             raise SystemExit("Account already exists; nothing changed")
-        user = User(username=name, password_hash=hasher.hash(password), role="admin")
+        if args.command == "public-demo" and (
+            db.scalar(select(User.id).limit(1)) or db.scalar(select(Incident.id).limit(1))
+        ):
+            raise SystemExit("Public demo requires an empty dedicated database; nothing changed")
+        user = User(
+            username=name,
+            password_hash=hasher.hash(password),
+            role="analyst" if args.command == "public-demo" else "admin",
+        )
         db.add(user)
         db.flush()
-        if args.command == "demo":
+        if args.command in {"demo", "public-demo"}:
+            if args.command == "public-demo":
+                db.add(
+                    User(username="demo.viewer", password_hash=hasher.hash(password), role="viewer")
+                )
             titles = [
                 "Repeated sign-in failures for finance account",
                 "Credential lure reported by employee",
@@ -76,7 +94,8 @@ def main():
                 )
         db.commit()
         print(
-            "Account created" + (" with synthetic demo incidents" if args.command == "demo" else "")
+            "Account created"
+            + (" with synthetic demo incidents" if args.command in {"demo", "public-demo"} else "")
         )
 
 

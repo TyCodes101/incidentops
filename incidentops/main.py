@@ -17,6 +17,7 @@ from incidentops.analyzer import router as analyzer_router
 from incidentops.config import validate_environment
 from incidentops.db import get_db
 from incidentops.http import RequestSizeLimit, security_headers
+from incidentops.limits import consume
 from incidentops.models import Incident, IncidentEvent, LoginSession, Note, User, utcnow
 from incidentops.schemas import (
     EventRead,
@@ -95,6 +96,10 @@ def health(db: Session = Depends(get_db)):
 @app.post("/auth/login")
 def login(payload: Login, request: Request, response: Response, db: Session = Depends(get_db)):
     key = request.client.host if request.client else "unknown"
+    if os.getenv("APP_ENV") == "production":
+        consume(db, "login-global", "all", 100, 60)
+        consume(db, "login-client", key, 10, 60)
+        consume(db, "login-account", payload.username, 20, 60)
     now = time.monotonic()
     with attempts_lock:
         queue = attempts.setdefault(key, deque())

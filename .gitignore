@@ -19,3 +19,5 @@ node_modules/
 # Environment-specific credentials are local; the documented template is safe.
 .env.*
 !.env.example
+.vercel/
+public/

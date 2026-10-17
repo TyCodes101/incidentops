@@ -1,0 +1,15 @@
+.git
+.agents
+.styleseed
+.runtime
+.venv
+.env*
+*.db
+**/__pycache__
+frontend/node_modules
+frontend/dist
+docs/screenshots
+tests
+work
+outputs
+CODEX_START_PROMPT.md
