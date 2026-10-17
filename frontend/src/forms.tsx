@@ -22,7 +22,7 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
       </div>
       <main className="login-form">
         <p className="eyebrow">WORKSPACE ACCESS</p>
-        <h2>Welcome back</h2>
+        <h1>Welcome back</h1>
         <p>Sign in to your incident workspace.</p>
         <form
           onSubmit={async (e) => {

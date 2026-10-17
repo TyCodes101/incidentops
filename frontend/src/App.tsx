@@ -129,7 +129,7 @@ export default function App() {
   const view = page.view;
   const nav = (
     <>
-      <a className="brand" href="#dashboard">
+      <a className="brand" href="#dashboard" onClick={() => setMenu(false)}>
         <Shield size={23} />
         IncidentOps
       </a>
@@ -215,6 +215,7 @@ export default function App() {
       <dialog
         ref={drawer}
         className="mobile-drawer"
+        aria-label="Workspace navigation"
         onCancel={() => setMenu(false)}
       >
         <button

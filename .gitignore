@@ -15,3 +15,7 @@ node_modules/
 .coverage
 
 .runtime/
+
+# Environment-specific credentials are local; the documented template is safe.
+.env.*
+!.env.example

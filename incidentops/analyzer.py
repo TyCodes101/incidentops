@@ -45,7 +45,7 @@ def analyze(text):
     failures = defaultdict(list)
     flagged = {}
     for stamp, name, ip, success in sorted(records):
-        failures[name] = [r for r in failures[name] if r[0] >= stamp - timedelta(minutes=10)]
+        failures[name] = [r for r in failures[name] if stamp - r[0] <= timedelta(minutes=10)]
         if not success:
             failures[name].append((stamp, ip))
         if len(failures[name]) >= 5:

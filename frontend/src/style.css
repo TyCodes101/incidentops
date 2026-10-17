@@ -974,7 +974,7 @@ tbody tr:hover {
   border-radius: 8px;
   padding: 32px;
 }
-.login-form h2 {
+.login-form h1 {
   font-size: 24px;
 }
 .login-form > p {

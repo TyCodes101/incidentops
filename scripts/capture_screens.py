@@ -7,26 +7,30 @@ from playwright.sync_api import sync_playwright
 project = Path(__file__).resolve().parents[1]
 base = os.getenv("INCIDENTOPS_URL", "http://localhost:5173")
 reports = []
+probe_path = project / ".agents/skills/styleseed/workflows/ss-verify/scripts/inspect-appearance.mjs"
 probe = (
-    (project / ".agents/skills/styleseed/workflows/ss-verify/scripts/inspect-appearance.mjs")
-    .read_text()
-    .replace("export function", "function", 1)
+    probe_path.read_text(encoding="utf-8").replace("export function", "function", 1)
+    if probe_path.exists()
+    else None
 )
 root = project / "docs/screenshots/after"
 root.mkdir(parents=True, exist_ok=True)
 with sync_playwright() as p:
     b = p.chromium.launch()
     page = b.new_page(device_scale_factor=2)
+    anonymous = b.new_page(device_scale_factor=2)
+    page.goto(base)
+    page.get_by_label("Username", exact=True).fill("demo.admin")
+    page.get_by_label("Password", exact=True).fill("Demo-Only-Change-Me!")
+    page.get_by_role("button", name="Sign in", exact=True).click()
+    page.get_by_role("heading", name="Security overview").wait_for()
     for size, w, h in [("desktop", 1440, 900), ("laptop", 1280, 800), ("mobile", 390, 844)]:
         page.set_viewport_size({"width": w, "height": h})
-        page.goto(base)
-        page.wait_for_load_state("networkidle")
-        page.evaluate("document.fonts.ready")
-        page.screenshot(path=str(root / f"login-{size}.png"), full_page=True)
-        page.get_by_label("Username", exact=True).fill("demo.admin")
-        page.get_by_label("Password", exact=True).fill("Demo-Only-Change-Me!")
-        page.get_by_role("button", name="Sign in", exact=True).click()
-        page.get_by_role("heading", name="Security overview").wait_for()
+        anonymous.set_viewport_size({"width": w, "height": h})
+        anonymous.goto(base)
+        anonymous.wait_for_load_state("networkidle")
+        anonymous.evaluate("document.fonts.ready")
+        anonymous.screenshot(path=str(root / f"login-{size}.png"), full_page=True)
         for name in ["dashboard", "incidents", "activity", "analyzer", "team", "incident/1", "new"]:
             page.goto(base + "/#" + name)
             page.wait_for_timeout(700)
@@ -38,7 +42,7 @@ with sync_playwright() as p:
                 size,
                 "overflow",
             )
-            if name == "incidents":
+            if name == "incidents" and probe is not None:
                 report = page.evaluate(
                     "(" + probe + ")",
                     {
@@ -89,10 +93,15 @@ with sync_playwright() as p:
         if size == "mobile":
             page.get_by_role("button", name="Open navigation").click()
             page.screenshot(path=str(root / "navigation-mobile.png"))
-        page.get_by_role("button", name="Sign out").last.click()
-        page.get_by_role("heading", name="Welcome back").wait_for()
+    page.get_by_role("button", name="Sign out").last.click()
+    page.get_by_role("heading", name="Welcome back").wait_for()
     b.close()
 print("Captured all screens at three viewports; no horizontal page overflow")
 
 (project / "docs/verification/appearance.json").write_text(json.dumps(reports, indent=2))
 print([(r["context"]["specimen"], r["status"], r["fontLoaded"]) for r in reports])
+
+if probe is None:
+    print(
+        "StyleSeed appearance helper unavailable in this checkout; scoped probe NOT TESTED. Screenshots captured."
+    )
