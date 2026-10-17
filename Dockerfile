@@ -1,8 +1,9 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine
 WORKDIR /app
 COPY pyproject.toml ./
 COPY incidentops ./incidentops
-RUN pip install --no-cache-dir . && useradd --system --create-home incidentops
+RUN apk upgrade --no-cache && pip install --no-cache-dir . \
+    && adduser -D -H incidentops
 COPY alembic.ini ./
 COPY migrations ./migrations
 USER incidentops
