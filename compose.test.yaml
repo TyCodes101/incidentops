@@ -1,0 +1,5 @@
+# Disposable CI override; never apply to an operational database.
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
