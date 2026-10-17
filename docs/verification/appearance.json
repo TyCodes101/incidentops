@@ -1,0 +1,437 @@
+[
+  {
+    "schemaVersion": 1,
+    "artifactId": "incidentops",
+    "context": {
+      "theme": "light",
+      "state": "default",
+      "specimen": "desktop",
+      "fontCondition": "normal"
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "devicePixelRatio": 2
+    },
+    "reducedMotion": false,
+    "status": "observed",
+    "colorChecks": [
+      {
+        "id": "queue-scope",
+        "role": "text",
+        "reason": "Queue scope subtitle",
+        "foreground": {
+          "selector": ".queue .section-heading .muted",
+          "property": "color"
+        },
+        "background": {
+          "selector": ".queue"
+        },
+        "status": "pass",
+        "code": "opaque-pair-contrast",
+        "foregroundColor": "rgb(92, 104, 115)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "ratio": 5.70226208002152,
+        "minimum": 4.5,
+        "tokens": [
+          {
+            "status": "not-requested"
+          },
+          {
+            "status": "not-requested"
+          }
+        ]
+      },
+      {
+        "id": "search-edge",
+        "role": "required-boundary",
+        "reason": "Search field identification",
+        "foreground": {
+          "selector": ".search input",
+          "property": "borderTopColor"
+        },
+        "background": {
+          "selector": ".search input"
+        },
+        "status": "pass",
+        "code": "opaque-pair-contrast",
+        "foregroundColor": "rgb(126, 141, 152)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "ratio": 3.414370853893904,
+        "minimum": 3,
+        "tokens": [
+          {
+            "status": "not-requested"
+          },
+          {
+            "status": "not-requested"
+          }
+        ]
+      }
+    ],
+    "typography": [
+      {
+        "id": "page-title",
+        "selector": "h1",
+        "role": "heading",
+        "sampleId": "incident-queue",
+        "status": "observed",
+        "declared": {
+          "fontFamily": "\"Inter Variable\", Inter, system-ui, sans-serif",
+          "fontSize": "24px",
+          "fontWeight": "650",
+          "fontStretch": "100%",
+          "fontStyle": "normal",
+          "fontOpticalSizing": "auto",
+          "fontVariationSettings": "normal",
+          "fontVariantNumeric": "normal",
+          "fontSynthesis": "none",
+          "lineHeight": "31.2px",
+          "letterSpacing": "-0.65px",
+          "wordBreak": "normal",
+          "overflowWrap": "normal"
+        },
+        "box": {
+          "width": 307.265625,
+          "height": 31.1875
+        },
+        "fontSetStatus": "loaded",
+        "declaredFontFaces": [
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ],
+        "glyphFontVerification": "not-performed",
+        "mixedMarkup": false
+      }
+    ],
+    "scope": "declared-consumers-at-one-render-state",
+    "designAcceptance": "not-assessed",
+    "fontLoaded": true
+  },
+  {
+    "schemaVersion": 1,
+    "artifactId": "incidentops",
+    "context": {
+      "theme": "light",
+      "state": "default",
+      "specimen": "laptop",
+      "fontCondition": "normal"
+    },
+    "viewport": {
+      "width": 1280,
+      "height": 800,
+      "devicePixelRatio": 2
+    },
+    "reducedMotion": false,
+    "status": "observed",
+    "colorChecks": [
+      {
+        "id": "queue-scope",
+        "role": "text",
+        "reason": "Queue scope subtitle",
+        "foreground": {
+          "selector": ".queue .section-heading .muted",
+          "property": "color"
+        },
+        "background": {
+          "selector": ".queue"
+        },
+        "status": "pass",
+        "code": "opaque-pair-contrast",
+        "foregroundColor": "rgb(92, 104, 115)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "ratio": 5.70226208002152,
+        "minimum": 4.5,
+        "tokens": [
+          {
+            "status": "not-requested"
+          },
+          {
+            "status": "not-requested"
+          }
+        ]
+      },
+      {
+        "id": "search-edge",
+        "role": "required-boundary",
+        "reason": "Search field identification",
+        "foreground": {
+          "selector": ".search input",
+          "property": "borderTopColor"
+        },
+        "background": {
+          "selector": ".search input"
+        },
+        "status": "pass",
+        "code": "opaque-pair-contrast",
+        "foregroundColor": "rgb(126, 141, 152)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "ratio": 3.414370853893904,
+        "minimum": 3,
+        "tokens": [
+          {
+            "status": "not-requested"
+          },
+          {
+            "status": "not-requested"
+          }
+        ]
+      }
+    ],
+    "typography": [
+      {
+        "id": "page-title",
+        "selector": "h1",
+        "role": "heading",
+        "sampleId": "incident-queue",
+        "status": "observed",
+        "declared": {
+          "fontFamily": "\"Inter Variable\", Inter, system-ui, sans-serif",
+          "fontSize": "24px",
+          "fontWeight": "650",
+          "fontStretch": "100%",
+          "fontStyle": "normal",
+          "fontOpticalSizing": "auto",
+          "fontVariationSettings": "normal",
+          "fontVariantNumeric": "normal",
+          "fontSynthesis": "none",
+          "lineHeight": "31.2px",
+          "letterSpacing": "-0.65px",
+          "wordBreak": "normal",
+          "overflowWrap": "normal"
+        },
+        "box": {
+          "width": 307.265625,
+          "height": 31.1875
+        },
+        "fontSetStatus": "loaded",
+        "declaredFontFaces": [
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ],
+        "glyphFontVerification": "not-performed",
+        "mixedMarkup": false
+      }
+    ],
+    "scope": "declared-consumers-at-one-render-state",
+    "designAcceptance": "not-assessed",
+    "fontLoaded": true
+  },
+  {
+    "schemaVersion": 1,
+    "artifactId": "incidentops",
+    "context": {
+      "theme": "light",
+      "state": "default",
+      "specimen": "mobile",
+      "fontCondition": "normal"
+    },
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "devicePixelRatio": 2
+    },
+    "reducedMotion": false,
+    "status": "unsupported",
+    "colorChecks": [
+      {
+        "id": "queue-scope",
+        "role": "text",
+        "reason": "Queue scope subtitle",
+        "foreground": {
+          "selector": ".queue .section-heading .muted",
+          "property": "color"
+        },
+        "background": {
+          "selector": ".queue"
+        },
+        "status": "unsupported",
+        "code": "hidden-element"
+      },
+      {
+        "id": "search-edge",
+        "role": "required-boundary",
+        "reason": "Search field identification",
+        "foreground": {
+          "selector": ".search input",
+          "property": "borderTopColor"
+        },
+        "background": {
+          "selector": ".search input"
+        },
+        "status": "pass",
+        "code": "opaque-pair-contrast",
+        "foregroundColor": "rgb(126, 141, 152)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "ratio": 3.414370853893904,
+        "minimum": 3,
+        "tokens": [
+          {
+            "status": "not-requested"
+          },
+          {
+            "status": "not-requested"
+          }
+        ]
+      }
+    ],
+    "typography": [
+      {
+        "id": "page-title",
+        "selector": "h1",
+        "role": "heading",
+        "sampleId": "incident-queue",
+        "status": "observed",
+        "declared": {
+          "fontFamily": "\"Inter Variable\", Inter, system-ui, sans-serif",
+          "fontSize": "22px",
+          "fontWeight": "650",
+          "fontStretch": "100%",
+          "fontStyle": "normal",
+          "fontOpticalSizing": "auto",
+          "fontVariationSettings": "normal",
+          "fontVariantNumeric": "normal",
+          "fontSynthesis": "none",
+          "lineHeight": "28.6px",
+          "letterSpacing": "-0.65px",
+          "wordBreak": "normal",
+          "overflowWrap": "normal"
+        },
+        "box": {
+          "width": 307.265625,
+          "height": 28.59375
+        },
+        "fontSetStatus": "loaded",
+        "declaredFontFaces": [
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Inter Variable",
+            "weight": "100 900",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ],
+        "glyphFontVerification": "not-performed",
+        "mixedMarkup": false
+      }
+    ],
+    "scope": "declared-consumers-at-one-render-state",
+    "designAcceptance": "not-assessed",
+    "fontLoaded": true
+  }
+]

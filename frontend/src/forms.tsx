@@ -17,27 +17,11 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
   const [busy, setBusy] = useState(false);
   return (
     <div className="login">
-      <div className="login-story">
-        <div className="brand">
-          <Shield /> IncidentOps
-        </div>
-        <div>
-          <p className="eyebrow">SECURITY INCIDENT COMMAND CENTER</p>
-          <h1>
-            Security incidents,
-            <br />
-            under control.
-          </h1>
-          <p>
-            A clear picture. An accountable response.
-            <br />
-            One place to move every investigation forward.
-          </p>
-        </div>
-        <small>Built for thoughtful incident response.</small>
+      <div className="login-brand">
+        <Shield size={24} /> IncidentOps <span>Security operations</span>
       </div>
       <main className="login-form">
-        <Shield size={36} />
+        <p className="eyebrow">WORKSPACE ACCESS</p>
         <h2>Welcome back</h2>
         <p>Sign in to your incident workspace.</p>
         <form
@@ -82,7 +66,7 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
         <small>
           Use an account provisioned by your administrator.
           <br />
-          Synthetic demo setup is documented in the README.
+          Contact your administrator if you need access.
         </small>
       </main>
     </div>

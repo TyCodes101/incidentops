@@ -12,7 +12,9 @@
 - Authorized example CSV analysis: five failures in a rolling ten-minute window, success-after-failures indicator, validation and flag-to-incident workflow. A flag is not proof of intrusion.
 - Backend and frontend interaction tests, Ruff, ESLint, TypeScript, production build, Dockerfiles and GitHub Actions configuration.
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](docs/screenshots/after/dashboard-desktop.png)
+
+The approved StyleSeed redesign uses a compact case workbench, persistent case URLs, a mobile navigation drawer, locally bundled Inter, and shared semantic tokens. See [redesign details and screenshot comparisons](docs/REDESIGN.md) and [StyleSeed review and limitations](docs/STYLESEED_REVIEW.md).
 
 ## Windows quick start
 

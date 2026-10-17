@@ -58,9 +58,10 @@ function EditSummary({
   save,
 }: {
   item: Incident;
-  save: (body: unknown) => Promise<void>;
+  save: (body: unknown) => Promise<boolean>;
 }) {
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   if (!editing)
     return (
       <button className="text-button" onClick={() => setEditing(true)}>
@@ -71,8 +72,10 @@ function EditSummary({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        await save(Object.fromEntries(new FormData(e.currentTarget)));
-        setEditing(false);
+        setSaving(true);
+        if (await save(Object.fromEntries(new FormData(e.currentTarget))))
+          setEditing(false);
+        setSaving(false);
       }}
     >
       <label>
@@ -104,7 +107,7 @@ function EditSummary({
           maxLength={40}
         />
       </label>
-      <button>Save summary</button>{" "}
+      <button disabled={saving}>{saving ? "Saving..." : "Save summary"}</button>{" "}
       <button
         type="button"
         className="secondary"
@@ -160,13 +163,33 @@ export function Detail({
       await api("/incidents/" + id, send(body, "PATCH"));
       setVersion((v) => v + 1);
       onChange();
+      return true;
     } catch (e) {
       setError((e as Error).message);
+      return false;
     } finally {
       setBusy(false);
     }
   };
-  if (!item) return <p role="status">{error || "Loading investigation…"}</p>;
+  if (!item)
+    return error ? (
+      <div className="error" role="alert">
+        {error}
+        <button
+          className="secondary"
+          onClick={() => {
+            setError("");
+            setVersion((v) => v + 1);
+          }}
+        >
+          Retry investigation
+        </button>
+      </div>
+    ) : (
+      <div className="empty" role="status">
+        Loading investigation...
+      </div>
+    );
   return (
     <>
       <div className="case-heading">
@@ -339,13 +362,17 @@ export function IncidentList({
   open,
   refresh,
   initialSeverity = "",
+  users = [],
+  compact = false,
 }: {
   open: (id: number) => void;
   refresh: number;
   initialSeverity?: string;
+  users?: User[];
+  compact?: boolean;
 }) {
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(compact ? "open" : "");
   const [severity, setSeverity] = useState(initialSeverity);
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("newest");
@@ -367,7 +394,7 @@ export function IncidentList({
         category,
         sort,
         offset: String(offset),
-        limit: "10",
+        limit: compact ? "5" : "10",
       });
       for (const k of ["status", "severity", "category"])
         if (!params.get(k)) params.delete(k);
@@ -389,80 +416,99 @@ export function IncidentList({
       active = false;
       clearTimeout(timer);
     };
-  }, [q, status, severity, category, sort, offset, refresh, retry]);
+  }, [q, status, severity, category, sort, offset, refresh, retry, compact]);
   return (
-    <section className="panel queue">
+    <section className={"panel queue" + (compact ? " compact-queue" : "")}>
       <div className="section-heading">
         <h3>
-          Incident queue <span className="count">{total}</span>
+          {compact ? "Awaiting triage" : "Incident queue"}{" "}
+          <span className="count">{total}</span>
         </h3>
-        <span className="muted">Persisted case records</span>
+        <span className="muted">
+          {compact ? "Newest open reports" : "All reported cases"}
+        </span>
       </div>
-      <div className="filters">
-        <label className="search">
-          <Search size={17} />
-          <input
-            aria-label="Search incidents"
-            placeholder="Search incidents…"
-            value={q}
+      {!compact && (
+        <div className="filters">
+          <label className="search">
+            <Search size={17} />
+            <input
+              aria-label="Search incidents"
+              placeholder="Search incidents…"
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setOffset(0);
+              }}
+            />
+          </label>
+          <select
+            aria-label="Filter status"
+            value={status}
             onChange={(e) => {
-              setQ(e.target.value);
+              setStatus(e.target.value);
               setOffset(0);
             }}
-          />
-        </label>
-        <select
-          aria-label="Filter status"
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
+          >
+            <option value="">All statuses</option>
+            {statuses.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+          <select
+            aria-label="Filter severity"
+            value={severity}
+            onChange={(e) => {
+              setSeverity(e.target.value);
+              setOffset(0);
+            }}
+          >
+            <option value="">All severities</option>
+            {severities.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+          <select
+            aria-label="Filter category"
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setOffset(0);
+            }}
+          >
+            <option value="">All categories</option>
+            {categories.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+          <select
+            aria-label="Sort incidents"
+            value={sort}
+            onChange={(e) => {
+              setSort(e.target.value);
+              setOffset(0);
+            }}
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
+      )}
+      {!compact && (q || status || severity || category) && (
+        <button
+          className="text-button clear-filters"
+          onClick={() => {
+            setQ("");
+            setStatus("");
+            setSeverity("");
+            setCategory("");
             setOffset(0);
           }}
         >
-          <option value="">All statuses</option>
-          {statuses.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Filter severity"
-          value={severity}
-          onChange={(e) => {
-            setSeverity(e.target.value);
-            setOffset(0);
-          }}
-        >
-          <option value="">All severities</option>
-          {severities.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Filter category"
-          value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
-            setOffset(0);
-          }}
-        >
-          <option value="">All categories</option>
-          {categories.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-        <select
-          aria-label="Sort incidents"
-          value={sort}
-          onChange={(e) => {
-            setSort(e.target.value);
-            setOffset(0);
-          }}
-        >
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-          <option value="title">Title A–Z</option>
-        </select>
-      </div>
+          Clear filters
+        </button>
+      )}
       {error ? (
         <p role="alert" className="error">
           {error}{" "}
@@ -489,7 +535,8 @@ export function IncidentList({
                 <th>Incident / category</th>
                 <th>Severity</th>
                 <th>Status</th>
-                <th>Reported</th>
+                {!compact && <th>Assigned to</th>}
+                <th>Updated</th>
                 <th />
               </tr>
             </thead>
@@ -503,13 +550,21 @@ export function IncidentList({
                     </button>
                     <span className="category">{i.category}</span>
                   </td>
-                  <td>
+                  <td data-label="Severity">
                     <Pill value={i.severity} />
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <Pill value={i.status} />
                   </td>
-                  <td className="muted">{date(i.created_at)}</td>
+                  {!compact && (
+                    <td data-label="Assigned to" className="muted">
+                      {users.find((u) => u.id === i.assignee_id)?.username ||
+                        "Unassigned"}
+                    </td>
+                  )}
+                  <td data-label="Updated" className="muted timestamp">
+                    {date(i.updated_at)}
+                  </td>
                   <td>
                     <button
                       className="icon secondary"
@@ -529,20 +584,20 @@ export function IncidentList({
         <small>
           {total === 0
             ? "0 incidents"
-            : `${offset + 1}–${Math.min(offset + 10, total)} of ${total} incidents`}
+            : `${offset + 1}–${Math.min(offset + (compact ? 5 : 10), total)} of ${total} incidents`}
         </small>
         <div>
           <button
             className="secondary"
             disabled={offset === 0 || loading}
-            onClick={() => setOffset(offset - 10)}
+            onClick={() => setOffset(offset - (compact ? 5 : 10))}
           >
             Previous
           </button>
           <button
             className="secondary"
-            disabled={offset + 10 >= total || loading}
-            onClick={() => setOffset(offset + 10)}
+            disabled={offset + (compact ? 5 : 10) >= total || loading}
+            onClick={() => setOffset(offset + (compact ? 5 : 10))}
           >
             Next
           </button>

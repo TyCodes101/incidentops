@@ -1,0 +1,28 @@
+# StyleSeed — Design Lock
+<!-- Initial project choices based on owner's enterprise redesign direction, October 17, 2026. They are not evidence of rendered visual approval. -->
+- App domain: saas
+- Surface: web-app
+- Surface adapter: product-ui
+- Page type: dashboard
+- Output grammar: operations-console
+- Grammar path: built-in:engine/RULESETS.md
+- Grammar fallback: operations-console
+- Reference confidence: n/a
+- Brand recipe: enterprise-workbench
+- Palette recipe: cobalt-instrument
+- Key color: #315B69
+- Palette character: calm
+- Palette mode: light
+- Palette harmony: tonal
+- Surface temperature: cool
+- Aesthetic profile: none
+- Skin: custom
+- Primary action: #315B69
+- Font: Inter
+- Radius: soft
+- Elevation: light=tonal grouping + restrained shadow · dark=tonal ramp + hairline
+- Density: compact
+- Motion: Snap restrained
+- Imagery/data role: persisted case and audit evidence first; charts only if tied to an operational decision
+- Signature move: actionable case queue with contextual investigation evidence, not ornamental KPI cards
+- Locked: 2026-10-17
