@@ -1,4 +1,6 @@
-# Verification evidence — October 17, 2026
+# Verification evidence — initial build, October 17, 2026
+
+This is the historical initial-build snapshot. Subsequent redesign and release verification supersedes its environment limitations and counts; consult REDESIGN.md and the release report/security review for current evidence.
 
 ## Commands and observed results
 

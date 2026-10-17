@@ -31,13 +31,19 @@ The scoped Git history scan checks token/private-key signatures and sensitive pa
 
 - Use a dedicated database containing only fictional incidents. Do not connect a public demo to personal, operational or other applications' records.
 - Never publish administrator credentials. A public demonstration account should have the minimum role required; keep owner provisioning private.
-- Login throttling remains process-local. Run a single API process/instance or add a shared/edge limiter before scaling or moving to an ephemeral serverless runtime. The local bound is not a distributed rate-limit guarantee.
-- Shared demo writes can be abused or fill storage; a writable public demo needs explicit quotas/reset and ownership rules. Do not grant public account-provisioning rights.
+- Production login also consumes atomic database-backed quotas: 100 requests globally, 10 per client and 20 per username per minute. The bounded process-local sliding window remains an additional defense. Shared fixed windows survive worker restarts; boundary bursts and denial of service against a shared public account remain possible.
+- `PUBLIC_DEMO=1` limits writer operations (including analyzer requests) to 200 globally per UTC day and 30 per account per hour, using the same shared store. Quotas are consumed even when a later operation fails. Reads and logout remain available. Public accounts are analyst/viewer only; no account-provisioning rights or public administrator exist. All visitors share the same fictional workspace and can see each other's changes. This is not tenant isolation or content moderation.
 - No MFA/SSO, password recovery, account deactivation UI or tenant isolation. This limits suitability for sensitive production use.
 - Audit records cannot be edited through the API, but database administrators can change them; there is no external tamper-evident audit store.
 - Backups/restoration are verified with a disposable database. That does not configure a production backup schedule, retention, point-in-time recovery or recovery objective.
 - Require provider HTTPS, Secure cookies, exact origin configuration, managed secrets and encrypted database transport on public networks. Validate the actual hosted endpoint before advertising it.
 - Package/container audits are dated observations, not a guarantee against future or undisclosed vulnerabilities. High/unfixed findings must be recorded with their practical impact.
+
+## Container remediation
+
+The first full scan blocked release on CVE-2025-68121 in PostgreSQL's `gosu` binary (Go 1.24.6). `docker/postgres.Dockerfile` rebuilds the unchanged upstream 1.19 source at commit `6456aaa0f3c854d199d0f037f068eb97515b7513` with Go 1.27.2, then replaces only that helper in the PostgreSQL 16 image. PostgreSQL's entrypoint, volume path and major version are preserved. Alpine packages are upgraded in the database and unprivileged web images. [Verification run](https://github.com/TyCodes101/incidentops/actions/runs/39077651627) reported zero high/critical findings for both images.
+
+That run also reported 44 high-severity Debian OS package occurrences in the API image, with no fixed package versions offered (util-linux, acl, ncurses, systemd libraries and perl). The API image was subsequently changed to Python 3.12 Alpine to remove that unnecessary package surface; the final release evidence must confirm the resulting scan and complete API behavior. No vulnerability exclusion or suppression was introduced.
 
 ## References
 
