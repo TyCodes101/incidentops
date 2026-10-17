@@ -9,8 +9,9 @@
 - [x] Run meaningful backend, frontend, migration and browser tests; fix discovered failures
 - [x] Prepare Docker Compose, private PostgreSQL networking, Nginx proxy and CI
 - [x] Write Windows/macOS/Linux setup, architecture, security, deployment and demo documentation
-- [ ] Docker image build / Compose runtime / real PostgreSQL verification (Docker unavailable)
-- [ ] Remote GitHub CI / cloud deployment (not requested or performed)
+- [x] Docker image builds / Compose runtime / PostgreSQL workflows, restart persistence and backup restoration in GitHub Actions (Docker unavailable locally)
+- [x] Remote GitHub CI, dependency audits and container scans
+- [ ] Public deployment: see the dated release report for actual hosted verification
 
 Visual thesis: calm white workspace, charcoal navigation, blue actions and precise data typography.
 Content plan: overview metrics, reporting trend, severity, case queue, chronological investigation.

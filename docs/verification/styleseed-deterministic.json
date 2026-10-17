@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "detectorRevision": "styleseed-check-v1",
+  "artifacts": [
+    {
+      "artifactId": "all",
+      "detectorRevision": "styleseed-check-v1",
+      "inventoryHash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "findings": [
+        {
+          "id": "SS000",
+          "file": ".styleseed/project.json",
+          "line": 1,
+          "evidence": "",
+          "severity": "error",
+          "message": "StyleSeed registry is missing.",
+          "fix": "Fix the contract, path, or hash before relying on this check."
+        }
+      ]
+    }
+  ]
+}

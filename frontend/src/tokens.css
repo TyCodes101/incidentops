@@ -1,0 +1,35 @@
+/* Approved STYLESEED.md roles. The exact primary action overrides the generated palette. */
+:root {
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
+  color: var(--text);
+  background: var(--canvas);
+  font-synthesis: none;
+  font-size: 14px;
+  line-height: 1.5;
+  --canvas: #f6f8fa;
+  --surface: #fff;
+  --chrome: #eef1f4;
+  --text: #1e2932;
+  --muted: #5c6873;
+  --line: #dce2e7;
+  --input-border: #7e8d98;
+  --action: #315b69;
+  --action-hover: #244753;
+  --selected: #e4edf0;
+  --focus: #0060a6;
+  --danger: #902824;
+  --danger-bg: #fff1ef;
+  --warning: #6e4b00;
+  --warning-bg: #fff5df;
+  --success: #006425;
+  --success-bg: #eaf5ed;
+  --scrim: #1e293255;
+  --radius: 6px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --fast: 100ms;
+}

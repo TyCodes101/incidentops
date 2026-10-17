@@ -148,3 +148,40 @@ describe("incident workflows", () => {
     ).not.toBeInTheDocument();
   });
 });
+
+it("preserves summary drafts after a rejected mutation", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((path: string, init?: RequestInit) =>
+      init?.method === "PATCH"
+        ? Promise.resolve({
+            ok: false,
+            status: 500,
+            json: () => Promise.resolve({ detail: "Save failed" }),
+          })
+        : ok(path.endsWith("/notes") || path.endsWith("/history") ? [] : item),
+    ),
+  );
+  render(<Detail id={1} user={user} users={[user]} onChange={vi.fn()} />);
+  await screen.findByText(item.title);
+  fireEvent.click(
+    screen.getByRole("button", { name: "Edit incident summary" }),
+  );
+  fireEvent.change(screen.getByLabelText("Title"), {
+    target: { value: "Unsaved investigation draft" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Save summary" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("Save failed");
+  expect(screen.getByLabelText("Title")).toHaveValue(
+    "Unsaved investigation draft",
+  );
+  expect(screen.getByRole("button", { name: "Save summary" })).toBeEnabled();
+});
+it("limits overview requests to open incidents", async () => {
+  const fetcher = vi.fn((_path: string) => ok([item]));
+  vi.stubGlobal("fetch", fetcher);
+  render(<IncidentList open={vi.fn()} refresh={0} compact />);
+  await screen.findByText(item.title);
+  expect(fetcher.mock.calls[0][0]).toContain("status=open");
+  expect(fetcher.mock.calls[0][0]).toContain("limit=5");
+});

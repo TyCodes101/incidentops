@@ -2,16 +2,22 @@
 
 import os
 import time
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
+from contextlib import asynccontextmanager
 from enum import Enum
+from threading import Lock
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from incidentops.analyzer import router as analyzer_router
+from incidentops.config import validate_environment
 from incidentops.db import get_db
+from incidentops.http import RequestSizeLimit, security_headers
+from incidentops.limits import consume
 from incidentops.models import Incident, IncidentEvent, LoginSession, Note, User, utcnow
 from incidentops.schemas import (
     EventRead,
@@ -32,9 +38,18 @@ from incidentops.security import (
     writer,
 )
 
-app = FastAPI(title="IncidentOps", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(application):
+    validate_environment()
+    yield
+
+
+app = FastAPI(title="IncidentOps", version="1.0.0", lifespan=lifespan)
 app.include_router(analyzer_router)
-attempts = defaultdict(deque)
+MAX_LOGIN_CLIENTS = 10000
+attempts = OrderedDict()
+attempts_lock = Lock()
 
 
 @app.middleware("http")
@@ -45,16 +60,11 @@ async def guard(request: Request, call_next):
         if origin and origin != allowed:
             from starlette.responses import JSONResponse
 
-            return JSONResponse({"detail": "Origin rejected"}, status_code=403)
-        if len(await request.body()) > 65536:
-            from starlette.responses import JSONResponse
-
-            return JSONResponse({"detail": "Request too large"}, status_code=413)
+            return JSONResponse(
+                {"detail": "Origin rejected"}, status_code=403, headers=security_headers()
+            )
     response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["Referrer-Policy"] = "same-origin"
-    response.headers["Cache-Control"] = "no-store"
+    response.headers.update(security_headers())
     return response
 
 
@@ -85,16 +95,26 @@ def health(db: Session = Depends(get_db)):
 
 @app.post("/auth/login")
 def login(payload: Login, request: Request, response: Response, db: Session = Depends(get_db)):
-    key = request.client.host
+    key = request.client.host if request.client else "unknown"
+    if os.getenv("APP_ENV") == "production":
+        consume(db, "login-global", "all", 100, 60)
+        consume(db, "login-client", key, 10, 60)
+        consume(db, "login-account", payload.username, 20, 60)
     now = time.monotonic()
-    queue = attempts[key]
-    while queue and queue[0] < now - 60:
-        queue.popleft()
-    if len(queue) >= 10:
-        raise HTTPException(429, "Too many attempts; retry in one minute")
-    queue.append(now)
+    with attempts_lock:
+        queue = attempts.setdefault(key, deque())
+        attempts.move_to_end(key)
+        while len(attempts) > MAX_LOGIN_CLIENTS:
+            attempts.popitem(last=False)
+        while queue and queue[0] < now - 60:
+            queue.popleft()
+        if len(queue) >= 10:
+            raise HTTPException(429, "Too many attempts; retry in one minute")
+        queue.append(now)
     user = db.scalar(select(User).where(User.username == payload.username))
     valid = verify(payload.password, user.password_hash if user else DUMMY_HASH)
+    if os.getenv("APP_ENV") == "production" and payload.username == "demo.admin":
+        valid = False
     if not user or not valid:
         raise HTTPException(401, "Incorrect username or password")
     start_session(db, user, response)
@@ -133,7 +153,11 @@ def create_user(payload: UserCreate, user: User = Depends(admin), db: Session = 
         username=payload.username, password_hash=hasher.hash(payload.password), role=payload.role
     )
     db.add(item)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(409, "Username already exists") from exc
     return user_read(item)
 
 
@@ -294,3 +318,7 @@ def metrics(user: User = Depends(current_user), db: Session = Depends(get_db)):
         "by_status": {s.value: status.get(s.value, 0) for s in Status},
         "trends": [{"date": str(d), "count": c} for d, c in trends],
     }
+
+
+# Outermost application middleware rejects oversized streams before guard/model parsing.
+app.add_middleware(RequestSizeLimit)

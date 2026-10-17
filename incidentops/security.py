@@ -2,17 +2,22 @@ import hashlib
 import os
 import secrets
 from datetime import timedelta
+from threading import BoundedSemaphore
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerificationError
 from fastapi import Depends, HTTPException, Request
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from incidentops.db import get_db
+from incidentops.limits import consume
 from incidentops.models import LoginSession, User, utcnow
 
 hasher = PasswordHasher()
 DUMMY_HASH = hasher.hash(secrets.token_urlsafe(32))
+# Bound concurrent Argon2 memory use on small demonstration hosts.
+verification_slots = BoundedSemaphore(2)
 
 
 def digest(token):
@@ -21,7 +26,12 @@ def digest(token):
 
 def current_user(request: Request, db: Session = Depends(get_db)):
     session = db.get(LoginSession, digest(request.cookies.get("session", "")))
-    if not session or session.expires_at.replace(tzinfo=utcnow().tzinfo) <= utcnow():
+    if not session:
+        raise HTTPException(401, "Sign in to continue")
+    expires_at = session.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=utcnow().tzinfo)
+    if expires_at <= utcnow():
         raise HTTPException(401, "Sign in to continue")
     user = db.get(User, session.user_id)
     if not user:
@@ -34,9 +44,12 @@ def current_user(request: Request, db: Session = Depends(get_db)):
     return user
 
 
-def writer(user: User = Depends(current_user)):
+def writer(user: User = Depends(current_user), db: Session = Depends(get_db)):
     if user.role not in {"admin", "analyst"}:
         raise HTTPException(403, "Analyst permission required")
+    if os.getenv("PUBLIC_DEMO") == "1":
+        consume(db, "demo-writes-daily", "all", 200, 86400)
+        consume(db, "demo-writes-user", user.id, 30, 3600)
     return user
 
 
@@ -47,6 +60,7 @@ def admin(user: User = Depends(current_user)):
 
 
 def start_session(db, user, response):
+    db.execute(delete(LoginSession).where(LoginSession.expires_at <= utcnow()))
     token = secrets.token_urlsafe(32)
     db.add(
         LoginSession(
@@ -65,6 +79,7 @@ def start_session(db, user, response):
 
 def verify(password, hashed):
     try:
-        return hasher.verify(hashed, password)
+        with verification_slots:
+            return hasher.verify(hashed, password)
     except VerificationError:
         return False

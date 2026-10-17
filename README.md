@@ -12,7 +12,9 @@
 - Authorized example CSV analysis: five failures in a rolling ten-minute window, success-after-failures indicator, validation and flag-to-incident workflow. A flag is not proof of intrusion.
 - Backend and frontend interaction tests, Ruff, ESLint, TypeScript, production build, Dockerfiles and GitHub Actions configuration.
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](docs/screenshots/after/dashboard-desktop.png)
+
+The approved StyleSeed redesign uses a compact case workbench, persistent case URLs, a mobile navigation drawer, locally bundled Inter, and shared semantic tokens. See [redesign details and screenshot comparisons](docs/REDESIGN.md) and [StyleSeed review and limitations](docs/STYLESEED_REVIEW.md).
 
 ## Windows quick start
 
@@ -67,7 +69,7 @@ docker compose exec api python -m incidentops.manage demo
 
 Open **http://localhost:8080**. Nginx serves the built client and proxies `/api/` under one origin. API/database ports stay private to Compose. PostgreSQL persists in `pg_data`. `docker compose down` preserves it; avoid `down -v` unless intentionally deleting data. Check `docker compose logs api` for migration diagnostics. For real accounts use `docker compose exec api python -m incidentops.manage admin --username your-admin` instead of the demo seed.
 
-Docker was unavailable on this host: container builds and PostgreSQL runtime behavior remain unverified.
+Docker Desktop is unavailable on this local host. The real Docker Compose/PostgreSQL stack was verified in [GitHub Actions](https://github.com/TyCodes101/incidentops/actions/runs/39076252169), including migrations, all API workflows, container restarts, session/data persistence, backup restoration and a browser walkthrough. See [release security review](docs/RELEASE_SECURITY.md) and the final release report for the latest commit evidence.
 
 ## Configuration
 
@@ -134,7 +136,7 @@ npm run build
 npm audit
 ```
 
-See [VERIFICATION.md](docs/VERIFICATION.md) for actual outcomes. No coverage or throughput claims are made. UI tests use mocked network responses; browser checks separately exercise the native stack. CI is prepared but has not run on GitHub here.
+See [VERIFICATION.md](docs/VERIFICATION.md) for actual outcomes. No coverage or throughput claims are made. UI tests use mocked network responses; browser checks separately exercise the native stack. GitHub Actions executes frontend/backend validation and a disposable PostgreSQL Compose integration job, retaining screenshots, container logs and runtime audit reports.
 
 ## Demo
 
@@ -144,22 +146,11 @@ Follow [the walkthrough](docs/DEMO_WALKTHROUGH.md). The sample CSV has twelve fi
 
 Use HTTPS and managed PostgreSQL, with the client and `/api` on one public origin. Build both Dockerfiles. Configure provider secrets: `DATABASE_URL` with required TLS settings, `APP_ENV=production`, `APP_ORIGIN=https://your-host`. Run `python -m alembic upgrade head` as one release job before replicas start. Compose migrates at startup for local use. Configure Nginx `proxy_pass` for the private backend hostname if the host does not provide Compose networking. Bootstrap an admin through a private terminal; do not seed or upload the demo database.
 
-Back up Postgres and test restoration. Separate migration/runtime DB roles and restrict ingress. Add shared edge throttling before multiple replicas. Health paths: internal `/health`, public proxy `/api/health`. Compose binds localhost and needs production ingress configuration. No cloud resources, paid services, pushes, or deployments were performed.
+Back up Postgres and test restoration. Separate migration/runtime DB roles and restrict ingress. Add shared edge throttling before multiple replicas. Health paths: internal `/health`, public proxy `/api/health`. Compose binds localhost and needs production ingress configuration. Public hosting must separately pass the hosted smoke checks in the release report; a passing local build or CI configuration alone is not deployment evidence.
 
-### Publish yourself
+### Repository and release
 
-Create an empty GitHub repository. Inspect `.gitignore` and `git status` for secrets, databases and node_modules, then:
-
-```sh
-git init
-git add .
-git commit -m "Build IncidentOps full-stack incident workspace"
-git branch -M main
-git remote add origin YOUR_REPOSITORY_URL
-git push -u origin main
-```
-
-Check Actions before deployment. Suggested description: “Security incident command center with React, FastAPI, role-based sessions, PostgreSQL, auditable investigations, and tested login-log analysis.”
+Source: [TyCodes101/incidentops](https://github.com/TyCodes101/incidentops). Changes are reviewed through pull requests. Release verification includes real PostgreSQL, migrations, role/CSRF tests, browser workflows, runtime dependency audits and container reports. Required checks and branch protection must pass before merge. Never force-push shared history or disable a check to publish a release.
 
 ## Troubleshooting / limitations
 
@@ -167,7 +158,7 @@ Check Actions before deployment. Suggested description: “Security incident com
 - Missing tables: run Alembic at repository root. For a pre-Alembic starter database, back it up, verify revision-0001 compatibility, then `python -m alembic stamp 0001` and `python -m alembic upgrade head`. Never stamp an unknown schema.
 - Origin rejected: use documented localhost or set `APP_ORIGIN` exactly. Secure cookies require production HTTPS.
 - No MFA, password recovery, deactivation UI, SSO or tenant isolation. Process-local login throttling needs shared deployment enforcement.
-- Charts show the 14 most recent dates containing reports, without zero-filled dates; severity includes resolved cases. Details retain complete history.
+- The overview trend shows seven UTC calendar dates, including zero-report dates; severity distribution includes resolved cases. Details retain complete history.
 - Data refreshes after local mutations; no WebSocket push. Edits use last-write-wins.
 - Audit is immutable through the API, not tamper-evident against database administrators. Nginx supplies ingress body limits and CSP.
 
@@ -175,4 +166,4 @@ Check Actions before deployment. Suggested description: “Security incident com
 
 - Built a React/TypeScript and FastAPI incident workspace with SQLAlchemy persistence, searchable paginated queues, analyst assignment, notes, and database-derived metrics.
 - Implemented Argon2 passwords, hashed server-side sessions, cookie/CSRF controls, and backend role enforcement with automated authentication and workflow tests.
-- Added incremental Alembic migrations and a validated CSV login-pattern analyzer; prepared PostgreSQL Docker Compose and GitHub Actions workflows and verified the native SQLite-backed app locally.
+- Added incremental Alembic migrations and a validated CSV login-pattern analyzer; verified real PostgreSQL Compose workflows, session/data persistence across container restarts, and backup restoration in isolated GitHub Actions.
