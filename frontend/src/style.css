@@ -984,6 +984,12 @@ tbody tr:hover {
 .login-form form {
   margin: 24px 0;
 }
+.login-form .demo-access {
+  display: block;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--canvas);
+}
 .login-form button {
   width: 100%;
 }
