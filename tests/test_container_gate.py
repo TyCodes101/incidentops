@@ -14,6 +14,7 @@ def run_gate(tmp_path, value):
             str(report),
         ],
         capture_output=True,
+        stdin=subprocess.DEVNULL,
         text=True,
         check=False,
     )
