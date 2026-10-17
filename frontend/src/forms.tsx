@@ -25,7 +25,7 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
         <h1>Welcome back</h1>
         <p>Sign in to your incident workspace.</p>
         {import.meta.env.VITE_PUBLIC_DEMO === "1" && (
-          <p className="notice" role="note">
+          <p className="notice demo-access" role="note">
             Public sandbox · fictional data only. Shared accounts:{" "}
             <code>demo.analyst</code>
             {" or "}
