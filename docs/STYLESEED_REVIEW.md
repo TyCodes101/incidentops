@@ -53,4 +53,4 @@ The final mobile appearance probe retains an unsupported scope-subtitle measurem
 
 Final source references: App.tsx:42–72 scopes notices to route changes; incidents.tsx:159–193 handles mutation failures and initial-load retry; incidents.tsx:367 onward preserves API-backed filtering and loading/error/empty states; workspace.tsx:25 onward composes the work queue; tokens.css:1 onward defines the shared visual roles.
 
-Final source references: App.tsx:42–72 scopes notices to route changes; incidents.tsx:159–193 handles mutation failures and initial-load retry; incidents.tsx:367 onward preserves API-backed filtering and loading/error/empty states; workspace.tsx:25 onward composes the work queue; tokens.css:1 onward defines the shared visual roles.
+The final full browser walkthrough also passed against the production build, including the late account-completion notice regression.
