@@ -27,6 +27,10 @@ include = ["incidentops*"]
 [tool.vercel]
 entrypoint = "server:app"
 
+[tool.vercel.fastapi.static]
+cdn = true
+exclude = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

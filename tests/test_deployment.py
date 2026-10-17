@@ -26,6 +26,23 @@ def test_vercel_adapter_preserves_authenticated_api(client):
         assert hosted.get("/api/auth/me").status_code == 401
 
 
+def test_vercel_adapter_serves_declared_frontend_assets(client, tmp_path, monkeypatch):
+    from server import app
+
+    monkeypatch.chdir(tmp_path)
+    assets = tmp_path / "frontend" / "dist"
+    assets.mkdir(parents=True)
+    (assets / "index.html").write_text("<!doctype html><title>Test frontend</title>")
+    (assets / "app.js").write_text("console.log('fixture')")
+    with TestClient(app) as hosted:
+        assert hosted.get("/").status_code == 200
+        assert "Test frontend" in hosted.get("/").text
+        assert hosted.get("/app.js").status_code == 200
+        assert hosted.get("/api/health").json() == {"status": "ok"}
+        assert hosted.get("/missing.js").status_code == 404
+        assert hosted.get("/../pyproject.toml").status_code == 404
+
+
 def test_public_seed_has_no_admin_and_is_opt_in(tmp_path):
     from sqlalchemy import create_engine, select
     from sqlalchemy.orm import Session
