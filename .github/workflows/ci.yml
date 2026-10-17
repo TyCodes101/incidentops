@@ -110,12 +110,12 @@ jobs:
       - name: Scan exact runtime images without mounting the Docker socket
         run: |
           mkdir -p .runtime/image-scan .runtime/ci-evidence .runtime/trivy-cache
-          docker image inspect "${COMPOSE_PROJECT_NAME}-api" "${COMPOSE_PROJECT_NAME}-web" postgres:16-alpine --format '{{json .RepoDigests}} {{.Id}}' > .runtime/ci-evidence/image-digests.txt
+          docker image inspect "${COMPOSE_PROJECT_NAME}-api" "${COMPOSE_PROJECT_NAME}-web" "${COMPOSE_PROJECT_NAME}-db" --format '{{json .RepoDigests}} {{.Id}}' > .runtime/ci-evidence/image-digests.txt
           for image in api web db; do
             case "$image" in
               api) source="${COMPOSE_PROJECT_NAME}-api" ;;
               web) source="${COMPOSE_PROJECT_NAME}-web" ;;
-              db) source="postgres:16-alpine" ;;
+              db) source="${COMPOSE_PROJECT_NAME}-db" ;;
             esac
             docker save "$source" -o ".runtime/image-scan/${image}.tar"
             docker run --rm \
